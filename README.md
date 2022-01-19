@@ -32,8 +32,10 @@ Decibel is small iOS app for recording office noise dB levels to Datadog. Read m
 
 Additionally, you can check out the (metrics API documentation for Data dog)[https://docs.datadoghq.com/api/latest/metrics/]
 
-With new changes! The app shows a notification if the sounds goes over a certain value, and the sound values also display on the screen:
+### New changes
 
-[Simulator Screen Shot - iPhone 8 - 2022-01-19 at 08 24 08](https://user-images.githubusercontent.com/8262287/150140259-6cab643d-2530-416e-947d-e9479b6eb993.png)
+The app shows a notification if the sounds goes over a certain value, and the sound values also display on the screen:
+
+![Simulator Screen Shot - iPhone 8 - 2022-01-19 at 08 24 08](https://user-images.githubusercontent.com/8262287/150140259-6cab643d-2530-416e-947d-e9479b6eb993.png)
 
 ![Simulator Screen Shot - iPhone 8 - 2022-01-19 at 08 24 14](https://user-images.githubusercontent.com/8262287/150140254-33e5c5d1-5b5a-438f-beae-ab05023ba511.png)
