@@ -8,7 +8,7 @@
 
 import UIKit
 import AVFoundation
-
+import UserNotifications
 /*
  NOTE: PLEASE PUT YOUR DATADOG KEY BELOW
  */
@@ -29,6 +29,14 @@ class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        let userNotificationCenter = UNUserNotificationCenter.current()
+        let authOptions = UNAuthorizationOptions.init(arrayLiteral: .alert, .badge, .sound)
+        userNotificationCenter.requestAuthorization(options: authOptions) { (success, error) in
+            if let error = error {
+                print("Error: ", error)
+            }
+        }
+        
         // Do any additional setup after loading the view.
         if DATADOG_KEY == "YOUR_KEY_HERE" {
             fatalError("You must update your datadog key to use Decibel")
@@ -76,7 +84,7 @@ class ViewController: UIViewController {
     func recordForever(audioRecorder: AVAudioRecorder) {
         let queue = DispatchQueue(label: "io.segment.decibel", attributes: .concurrent)
         timer = DispatchSource.makeTimerSource(flags: [], queue: queue)
-        timer?.scheduleRepeating(deadline: .now(), interval: .seconds(5), leeway: .milliseconds(100))
+        timer?.scheduleRepeating(deadline: .now(), interval: .milliseconds(1000), leeway: .milliseconds(100))
         timer?.setEventHandler { [weak self] in
             audioRecorder.updateMeters()
 
@@ -84,7 +92,43 @@ class ViewController: UIViewController {
             let correction: Float = 100
             let average = audioRecorder.averagePower(forChannel: 0) + correction
             let peak = audioRecorder.peakPower(forChannel: 0) + correction
-//            self?.recordDatapoint(average: average, peak: peak)
+
+            // Uncomment this if you want to work with data dog
+            //            self?.recordDatapoint(average: average, peak: peak)
+
+            if (peak > 80)
+            {
+                let content = UNMutableNotificationContent()
+                content.title = "Noise alert notification"
+                content.body = "The noise is loud at " + String(describing: peak)
+
+                // Configure the recurring date.
+                var dateComponents = DateComponents()
+
+                let date = Date()
+                let calendar = Calendar.current
+                dateComponents.calendar = calendar
+                dateComponents.hour = calendar.component(.hour, from: date)
+                dateComponents.minute = calendar.component(.minute, from: date)
+                dateComponents.second = calendar.component(.second, from: date) + 1
+                
+                // Create the trigger as a repeating event.
+                let trigger = UNCalendarNotificationTrigger(
+                         dateMatching: dateComponents, repeats: false)
+
+                let uuidString = UUID().uuidString
+                let request = UNNotificationRequest(identifier: uuidString,
+                            content: content, trigger: trigger)
+
+                // Schedule the request with the system.
+                let notificationCenter = UNUserNotificationCenter.current()
+
+                notificationCenter.add(request) { (error) in
+                   if error != nil {
+                      // Handle any errors.
+                   }
+                }
+            }
             DispatchQueue.main.async {
                 self?.AverageValueLabel.text = String(describing: average)
                 self?.PeakValueLabel.text =  String(describing: peak)
